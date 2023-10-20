@@ -1,0 +1,9 @@
+pandas==1.5.3
+pyreadstat==1.2.2
+openpyxl==3.1.2
+sidetable==0.9.1
+ipykernel
+notebook
+jupyter_server
+dash
+dash-bootstrap-components
