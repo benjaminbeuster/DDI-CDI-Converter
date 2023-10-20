@@ -81,7 +81,7 @@ app.layout = dbc.Container([
                                 data=[],
                                 editable=False,  # Allow content to be editable
                                 row_selectable="multi",  # Allow multiple rows to be selected
-                                selected_rows=[],
+                                selected_rows=[0],
                                 style_table=table_style,
                                 style_header=header_dict,
                                 style_cell=style_dict
@@ -162,10 +162,8 @@ def style_data_conditional(df):
      State('table2', 'data')]
 )
 def combined_callback(contents, selected_rows, filename, table2_data):
-    print("Callback activated!")
-
     # Check if any row is selected
-    if selected_rows:
+    if selected_rows and table2_data:
         for row_index in selected_rows:
             selected_row_data = table2_data[row_index]
             if "name" in selected_row_data:
@@ -200,7 +198,6 @@ def combined_callback(contents, selected_rows, filename, table2_data):
 
     finally:
         os.remove(tmp_filename)
-
 
 @app.callback(
     [Output("table1-col", "style"),
