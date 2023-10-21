@@ -51,7 +51,7 @@ def generate_MeasureComponent(df_meta):
 # In[ ]:
 
 
-# MeasureComponent
+# IdentifierComponent
 def generate_IdentifierComponent(df_meta):
     json_ld_data = []
     elements = {
@@ -633,6 +633,72 @@ def generate_Concept(df_meta):
 
     return json_ld_data
 
+# create functions for updated key
+
+# MeasureComponent2
+def generate_MeasureComponent2(df_meta, varlist=None):
+    json_ld_data = []
+    for x, variable in enumerate(df_meta.column_names):
+        if variable not in varlist:
+            elements = {
+                "@id": f"#measureComponent-{variable}",
+                "@type": "MeasureComponent",
+                "isDefinedBy": f"#{variable}"
+            }
+            json_ld_data.append(elements)
+
+    return json_ld_data
+
+# IdentifierComponent2
+def generate_IdentifierComponent2(df_meta, varlist=None):
+    json_ld_data = []
+    for x, variable in enumerate(df_meta.column_names):
+        if variable in varlist:
+            elements = {
+                "@id": f"#identifierComponent-{variable}",
+                "@type": "IdentifierComponent",
+                "isDefinedBy": f"#{variable}"
+            }
+            json_ld_data.append(elements)
+
+    return json_ld_data
+
+
+# WideDataStructure2
+def generate_WideDataStructure2(df_meta, varlist=None):
+    json_ld_data = []
+    elements = {
+        "@id": f"#wideDataStructure",
+        "@type": "WideDataStructure",
+    }
+    has = ["#primaryKey"]
+
+    for x, variable in enumerate(df_meta.column_names):
+        if variable in varlist:
+            has.append(f"#identifierComponent-{variable}")
+        else:
+            has.append(f"#measureComponent-{variable}")
+    elements['has'] = has
+
+    json_ld_data.append(elements)
+    return json_ld_data
+
+
+# PrimaryKeyComponent2
+def generate_PrimaryKeyComponent2(df_meta, varlist=None):
+    json_ld_data = []
+    elements = {
+        "@id": "#primaryKeyComponent",
+        "@type": "PrimaryKeyComponent",
+    }
+    has = []
+    for variable in varlist:
+        has.append(f"#identifierComponent-{variable}")
+
+    elements['correspondsTo'] = has
+    json_ld_data.append(elements)
+    return json_ld_data
+
 
 ################################################################################
 
@@ -669,6 +735,70 @@ def generate_complete_jsonld(df, df_meta, spssfile='name'):
                     WideDataStructure + IdentifierComponent + MeasureComponent + PrimaryKey + PrimaryKeyComponent + InstanceVariable + \
                     SubstantiveConceptualDomain + SubstantiveConceptScheme + SentinelConceptualDomain + ValueAndConceptDescription + \
                     SentinelConceptScheme + Concept
+    # Create a dictionary with the specified "@context" and "@graph" keys
+    json_ld_dict = {
+        "@context": [
+            "https://ddi-alliance.bitbucket.io/DDI-CDI/DDI-CDI_v1.0-rc1/encoding/json-ld/ddi-cdi.jsonld",
+            {
+                "skos": "http://www.w3.org/2004/02/skos/core#"
+            }
+        ],
+        "@graph": json_ld_graph
+    }
+    def default_encode(obj):
+        if isinstance(obj, np.int64):
+            return int(obj)
+        elif pd.isna(obj):  # Checks for pd.NA
+            return None
+        elif isinstance(obj, pd.Timestamp):  # Checks for Timestamp
+            return obj.isoformat()
+        # Add handling for datetime objects
+        elif isinstance(obj, (datetime.date, datetime.datetime)):
+            return obj.isoformat()
+        raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+
+    # Convert the Python dictionary to a JSON string with pretty formatting
+    json_ld_string = json.dumps(json_ld_dict, indent=4, default=default_encode)
+
+    return json_ld_string
+
+
+###################################################################################################
+
+def generate_complete_jsonld2(df, df_meta, spssfile='name', vars=None):
+    # ... [all your function definitions here]
+
+    # Generate JSON-LD
+    #InstanceVariable = generate_InstanceVariable(df_meta)
+    # SubstantiveConceptualDomain = generate_SubstantiveConceptualDomain(df_meta)
+    # SentinelConceptualDomain = generate_SentinelConceptualDomain(df_meta)
+    # ValueAndConceptDescription = generate_ValueAndConceptDescription(df_meta)
+    # SubstantiveConceptScheme = generate_SubstantiveConceptScheme(df_meta)
+    # SentinelConceptScheme = generate_SentinelConceptScheme(df_meta)
+    # Concept = generate_Concept(df_meta)
+    # LogicalRecord = generate_LogicalRecord(df_meta)
+    # PhysicalDataset = generate_PhysicalDataset(df_meta, spssfile)
+    # PhysicalRecordSegment = generate_PhysicalRecordSegment(df_meta)
+    # PhysicalSegmentLayout = generate_PhysicalSegmentLayout(df_meta)
+    # ValueMapping = generate_ValueMapping(df, df_meta)
+    #ValueMappingPosition = generate_ValueMappingPosition(df_meta)
+    #InstanceValue = generate_InstanceValue(df, df_meta)
+    #DataPoint = generate_DataPoint(df, df_meta)
+    #DataPointPosition = generate_DataPointPosition(df, df_meta)
+    DataStore = generate_DataStore(df_meta)
+    #WideDataSet = generate_WideDataSet(df_meta)
+    #WideDataStructure = generate_WideDataStructure2(df_meta)
+    #PrimaryKey = generate_PrimaryKey(df_meta)
+    #PrimaryKeyComponent = generate_PrimaryKeyComponent2(df_meta)
+    #MeasureComponent = generate_MeasureComponent2(df_meta)
+    #IdentifierComponent = generate_IdentifierComponent2(df_meta)
+
+    json_ld_graph = DataStore
+                    #PhysicalDataset + PhysicalRecordSegment + PhysicalSegmentLayout + ValueMapping
+                    # ValueMappingPosition + DataPoint + DataPointPosition + InstanceValue + LogicalRecord + WideDataSet + \
+                    # WideDataStructure + IdentifierComponent + MeasureComponent + PrimaryKey + PrimaryKeyComponent + InstanceVariable + \
+                    # SubstantiveConceptualDomain + SubstantiveConceptScheme + SentinelConceptualDomain + ValueAndConceptDescription + \
+                    # SentinelConceptScheme + Concept
     # Create a dictionary with the specified "@context" and "@graph" keys
     json_ld_dict = {
         "@context": [
