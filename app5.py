@@ -12,7 +12,7 @@ import dash_bootstrap_components as dbc
 import pyreadstat
 import pandas as pd
 from DDICDI_converter import generate_complete_jsonld, generate_complete_jsonld2
-from spss_import import read_sav, create_variable_view
+from spss_import import read_sav, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict
 
 
@@ -39,8 +39,9 @@ app.layout = dbc.Container([
                 id='upload-data',
                 children=dbc.Button('Import SPSS', color="primary", className="mr-1"),
                 multiple=False,
-                accept=".sav"
+                accept=".sav,.dta"  # Accept both .sav and .dta files
             ),
+
             html.Br(),
 
             # Add a button to switch between tables
@@ -161,6 +162,7 @@ def style_data_conditional(df):
     [State('upload-data', 'filename'),
      State('table2', 'data')]
 )
+
 def combined_callback(contents, selected_rows, filename, table2_data):
     # Initialization
     df_meta = None
@@ -170,13 +172,24 @@ def combined_callback(contents, selected_rows, filename, table2_data):
 
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
-    tmp_fd, tmp_filename = tempfile.mkstemp(suffix='.sav')
+
+    # Use the original file's extension for the temporary file
+    file_extension = os.path.splitext(filename)[1]
+    tmp_fd, tmp_filename = tempfile.mkstemp(suffix=file_extension)
+
     with os.fdopen(tmp_fd, 'wb') as tmp_file:
         tmp_file.write(decoded)
 
     try:
-        df, df_meta = read_sav(tmp_filename)
-        df2 = create_variable_view(df_meta)
+        if '.dta' in tmp_filename:
+            df, df_meta = read_sav(tmp_filename)  # Assuming read_sav can also handle .dta files
+            df2 = create_variable_view2(df_meta)
+        elif '.sav' in tmp_filename:
+            df, df_meta = read_sav(tmp_filename)
+            df2 = create_variable_view(df_meta)
+        else:
+            raise ValueError("Unsupported file type")
+
         df = df.head(10)
         columns1 = [{"name": i, "id": i} for i in df.columns]
         columns2 = [{"name": i, "id": i} for i in df2.columns]
