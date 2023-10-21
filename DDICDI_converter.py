@@ -765,40 +765,39 @@ def generate_complete_jsonld(df, df_meta, spssfile='name'):
 
 ###################################################################################################
 
-def generate_complete_jsonld2(df, df_meta, spssfile='name', vars=None):
+def generate_complete_jsonld2(df, df_meta, vars=None, spssfile='name'):
     # ... [all your function definitions here]
 
     # Generate JSON-LD
-    #InstanceVariable = generate_InstanceVariable(df_meta)
-    # SubstantiveConceptualDomain = generate_SubstantiveConceptualDomain(df_meta)
-    # SentinelConceptualDomain = generate_SentinelConceptualDomain(df_meta)
-    # ValueAndConceptDescription = generate_ValueAndConceptDescription(df_meta)
-    # SubstantiveConceptScheme = generate_SubstantiveConceptScheme(df_meta)
-    # SentinelConceptScheme = generate_SentinelConceptScheme(df_meta)
-    # Concept = generate_Concept(df_meta)
-    # LogicalRecord = generate_LogicalRecord(df_meta)
-    # PhysicalDataset = generate_PhysicalDataset(df_meta, spssfile)
-    # PhysicalRecordSegment = generate_PhysicalRecordSegment(df_meta)
-    # PhysicalSegmentLayout = generate_PhysicalSegmentLayout(df_meta)
-    # ValueMapping = generate_ValueMapping(df, df_meta)
-    #ValueMappingPosition = generate_ValueMappingPosition(df_meta)
-    #InstanceValue = generate_InstanceValue(df, df_meta)
-    #DataPoint = generate_DataPoint(df, df_meta)
-    #DataPointPosition = generate_DataPointPosition(df, df_meta)
+    InstanceVariable = generate_InstanceVariable(df_meta)
+    SubstantiveConceptualDomain = generate_SubstantiveConceptualDomain(df_meta)
+    SentinelConceptualDomain = generate_SentinelConceptualDomain(df_meta)
+    ValueAndConceptDescription = generate_ValueAndConceptDescription(df_meta)
+    SubstantiveConceptScheme = generate_SubstantiveConceptScheme(df_meta)
+    SentinelConceptScheme = generate_SentinelConceptScheme(df_meta)
+    Concept = generate_Concept(df_meta)
+    LogicalRecord = generate_LogicalRecord(df_meta)
+    PhysicalDataset = generate_PhysicalDataset(df_meta, spssfile)
+    PhysicalRecordSegment = generate_PhysicalRecordSegment(df_meta)
+    PhysicalSegmentLayout = generate_PhysicalSegmentLayout(df_meta)
+    ValueMapping = generate_ValueMapping(df, df_meta)
+    ValueMappingPosition = generate_ValueMappingPosition(df_meta)
+    InstanceValue = generate_InstanceValue(df, df_meta)
+    DataPoint = generate_DataPoint(df, df_meta)
+    DataPointPosition = generate_DataPointPosition(df, df_meta)
     DataStore = generate_DataStore(df_meta)
-    #WideDataSet = generate_WideDataSet(df_meta)
-    #WideDataStructure = generate_WideDataStructure2(df_meta)
-    #PrimaryKey = generate_PrimaryKey(df_meta)
-    #PrimaryKeyComponent = generate_PrimaryKeyComponent2(df_meta)
-    #MeasureComponent = generate_MeasureComponent2(df_meta)
-    #IdentifierComponent = generate_IdentifierComponent2(df_meta)
+    WideDataSet = generate_WideDataSet(df_meta)
+    WideDataStructure = generate_WideDataStructure2(df_meta, vars)
+    PrimaryKey = generate_PrimaryKey(df_meta)
+    PrimaryKeyComponent = generate_PrimaryKeyComponent2(df_meta, vars)
+    MeasureComponent = generate_MeasureComponent2(df_meta, vars)
+    IdentifierComponent = generate_IdentifierComponent2(df_meta, vars)
 
-    json_ld_graph = DataStore
-                    #PhysicalDataset + PhysicalRecordSegment + PhysicalSegmentLayout + ValueMapping
-                    # ValueMappingPosition + DataPoint + DataPointPosition + InstanceValue + LogicalRecord + WideDataSet + \
-                    # WideDataStructure + IdentifierComponent + MeasureComponent + PrimaryKey + PrimaryKeyComponent + InstanceVariable + \
-                    # SubstantiveConceptualDomain + SubstantiveConceptScheme + SentinelConceptualDomain + ValueAndConceptDescription + \
-                    # SentinelConceptScheme + Concept
+    json_ld_graph = DataStore + PhysicalDataset + PhysicalRecordSegment + PhysicalSegmentLayout + ValueMapping + \
+                    ValueMappingPosition + DataPoint + DataPointPosition + InstanceValue + LogicalRecord + WideDataSet + \
+                    WideDataStructure + IdentifierComponent + MeasureComponent + PrimaryKey + PrimaryKeyComponent + InstanceVariable + \
+                    SubstantiveConceptualDomain + SubstantiveConceptScheme + SentinelConceptualDomain + ValueAndConceptDescription + \
+                    SentinelConceptScheme + Concept
     # Create a dictionary with the specified "@context" and "@graph" keys
     json_ld_dict = {
         "@context": [
