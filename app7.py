@@ -18,16 +18,36 @@ from app_content import markdown_text, colors, style_dict, table_style, header_d
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SUPERHERO])
 app.title = app_title
 
-# Define the navbar
+sikt_logo = html.Img(
+    src=app.get_asset_url('sikt.jpg'),
+    style={
+        'height': '40px',
+        'maxWidth': '100%',
+        'objectFit': 'contain',
+        'marginRight': '10px'
+    }
+)
+
+# Customize the brand section to place the text before the logos
+brand_section = html.Div([
+    dbc.NavLink(app_title, href="#", style={'verticalAlign': 'middle', 'marginRight': '10px'}),  # Adding a margin to separate the text from the logo and wrapping the app_title with a NavLink
+])
+
+
+# Modify the navbar to include the custom brand section and the logo next to the app_description
 navbar = dbc.NavbarSimple(
     children=[
         dbc.NavItem(dbc.NavLink(app_description, href="#")),
+        sikt_logo  # This places the logo right after the app_description
     ],
-    brand=app_title,
+    brand=brand_section,
     brand_href="#",
     color="dark",
     dark=True,
 )
+
+
+
 
 app.layout = dbc.Container([
     navbar,
