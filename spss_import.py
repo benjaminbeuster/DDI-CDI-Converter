@@ -58,7 +58,7 @@ def create_variable_view(df_meta):
     df_format = pd.DataFrame(list(format.items()), columns=['name', 'format'])
     df_measure = pd.DataFrame(list(measure.items()), columns=['name', 'measure'])
 
-    # For values and missing, we will handle them differently since they have dictionaries/lists inside
+    # For values and missing, handle them differently due to dictionaries/lists inside
     df_values_list = [{'name': k, 'values': str(v)} for k, v in values.items()]  # Convert values to string
     df_values = pd.DataFrame(df_values_list)
 
@@ -66,10 +66,23 @@ def create_variable_view(df_meta):
     df_missing = pd.DataFrame(df_missing_list)
 
     # Merge dataframes on the 'name' column
-    variable_view = df_label.merge(df_values, on='name', how='outer') \
-        .merge(df_missing, on='name', how='outer') \
+    variable_view = df_label
+    if not df_values.empty:
+        variable_view = variable_view.merge(df_values, on='name', how='outer')
+
+    if not df_missing.empty:
+        variable_view = variable_view.merge(df_missing, on='name', how='outer')
+
+    variable_view = variable_view \
         .merge(df_format, on='name', how='outer') \
         .merge(df_measure, on='name', how='outer')
+
+    # Ensure 'values' and 'missing' columns are present
+    if 'values' not in variable_view.columns:
+        variable_view['values'] = pd.NA
+
+    if 'missing' not in variable_view.columns:
+        variable_view['missing'] = pd.NA
 
     return variable_view[['name', 'format', 'measure', 'label', 'values', 'missing']]
 
@@ -92,7 +105,7 @@ def create_variable_view2(df_meta):
     df_format = pd.DataFrame(list(format.items()), columns=['name', 'format'])
     df_measure = pd.DataFrame(list(measure.items()), columns=['name', 'measure'])
 
-    # For values and missing, we will handle them differently since they have dictionaries/lists inside
+    # For values and missing, handle them differently due to dictionaries/lists inside
     df_values_list = [{'name': k, 'values': str(v)} for k, v in values.items()]  # Convert values to string
     df_values = pd.DataFrame(df_values_list)
 
@@ -100,10 +113,26 @@ def create_variable_view2(df_meta):
     df_missing = pd.DataFrame(df_missing_list)
 
     # Merge dataframes on the 'name' column
-    variable_view = df_label.merge(df_values, on='name', how='outer') \
-        .merge(df_missing, on='name', how='outer') \
+    variable_view = df_label
+    if not df_values.empty:
+        variable_view = variable_view.merge(df_values, on='name', how='outer')
+    else:
+        variable_view['values'] = pd.NA
+
+    if not df_missing.empty:
+        variable_view = variable_view.merge(df_missing, on='name', how='outer')
+    else:
+        variable_view['missing'] = pd.NA
+
+    variable_view = variable_view \
         .merge(df_format, on='name', how='outer') \
         .merge(df_measure, on='name', how='outer')
 
-    return variable_view
+    # Ensure 'values' and 'missing' columns are present
+    if 'values' not in variable_view.columns:
+        variable_view['values'] = pd.NA
 
+    if 'missing' not in variable_view.columns:
+        variable_view['missing'] = pd.NA
+
+    return variable_view
