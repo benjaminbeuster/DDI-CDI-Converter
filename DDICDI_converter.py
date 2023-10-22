@@ -585,33 +585,34 @@ def generate_SentinelConceptScheme(df_meta):
 
 # In[ ]:
 
-
 # Concept
 def generate_Concept(df_meta):
+    def is_value_in_excluded_ranges(value, excluded_ranges):
+        # Ensure value is of the correct type
+        if all(isinstance(i, float) for i in excluded_ranges):
+            try:
+                value = float(value)
+            except ValueError:
+                return False
+        return value in excluded_ranges
+
     json_ld_data = []
 
-    for variable_name, values_dict in df_meta.variable_value_labels.items():
-        # Check if variable_name is in missing_ranges and, if so, generate the excluded_ranges
-        excluded_ranges = set()
-        if variable_name in df_meta.missing_ranges:
-            for dict_range in df_meta.missing_ranges[variable_name]:
-                lo_is_numeric = isinstance(dict_range['lo'], (int, float)) or (
-                        isinstance(dict_range['lo'], str) and dict_range['lo'].isnumeric()
-                )
-                hi_is_numeric = isinstance(dict_range['hi'], (int, float)) or (
-                        isinstance(dict_range['hi'], str) and dict_range['hi'].isnumeric()
-                )
+    # Convert user-defined missing values to the desired format
+    missing = df_meta.missing_ranges
+    if len(missing) == 0:
+        missing = {}
+        for key, vals in df_meta.missing_user_values.items():
+            missing[key] = [{"lo": val, "hi": val} for val in vals]
 
-                if lo_is_numeric and hi_is_numeric:
-                    # Case: 'lo' and 'hi' can be converted to int
-                    excluded_ranges.update(
-                        range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1)
-                    )
-                elif isinstance(dict_range['lo'], str):
-                    # Case: 'lo' is a string that is not numeric
-                    excluded_ranges.add(dict_range['lo'])
-                else:
-                    print(f"Warning: Unsupported 'lo' value: {dict_range['lo']}")
+    for variable_name, values_dict in df_meta.variable_value_labels.items():
+        # Check if variable_name is in missing and, if so, generate the excluded_ranges
+        excluded_ranges = set()
+        if variable_name in missing:
+            for dict_range in missing[variable_name]:
+                excluded_ranges.add(dict_range['lo'])
+                if dict_range['lo'] != dict_range['hi']:
+                    excluded_ranges.add(dict_range['hi'])
 
         # Iterate through values_dict and create elements, taking into account excluded_keys
         for key, value in values_dict.items():
@@ -632,6 +633,7 @@ def generate_Concept(df_meta):
             json_ld_data.append(elements)
 
     return json_ld_data
+
 
 # create functions for updated key
 
