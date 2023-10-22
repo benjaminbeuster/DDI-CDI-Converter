@@ -209,7 +209,6 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         else:
             raise ValueError("Unsupported file type")
 
-        df = df.head(10)
         columns1 = [{"name": i, "id": i} for i in df.columns]
         columns2 = [{"name": i, "id": i} for i in df2.columns]
         conditional_styles1 = style_data_conditional(df)

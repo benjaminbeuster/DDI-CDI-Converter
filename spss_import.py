@@ -32,6 +32,7 @@ def read_sav(filename: Path, encoding="utf-8", missings=True):
             df, meta = pyr.read_dta(filename, encoding="LATIN1", **kwargs)
 
     # recode dtype
+    df = df.head()
     df = df.convert_dtypes()
 
     # recode string variables
