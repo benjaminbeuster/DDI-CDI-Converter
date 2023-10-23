@@ -28,13 +28,10 @@ sikt_logo = html.Img(
     }
 )
 
-# Customize the brand section to place the text before the logos
 brand_section = html.Div([
-    dbc.NavLink(app_title, href="#", style={'verticalAlign': 'middle', 'marginRight': '10px'}),  # Adding a margin to separate the text from the logo and wrapping the app_title with a NavLink
+    dbc.NavLink(app_title, href="#", style={'verticalAlign': 'middle'}, className='ml-0')  # Add className='ml-0' and remove marginRight
 ])
 
-
-# Modify the navbar to include the custom brand section and the logo next to the app_description
 navbar = dbc.NavbarSimple(
     children=[
         dbc.NavItem(dbc.NavLink(app_description, href="#")),
@@ -45,8 +42,6 @@ navbar = dbc.NavbarSimple(
     color="dark",
     dark=True,
 )
-
-
 
 
 app.layout = dbc.Container([
@@ -75,30 +70,36 @@ app.layout = dbc.Container([
                         id="loading-table1",
                         type="default",
                         children=[
+                            # Insert the refined instruction text here with an id and hidden style
+                            html.Div(
+                                "This table displays the first 5 rows of the data file. Note: The JSON output is also limited to these 5 rows.",
+                                id="table1-instruction",
+                                style={'color': '#3498db', 'fontSize': '14px', 'marginBottom': '10px',
+                                       'display': 'none'}),
+
                             dash_table.DataTable(
                                 id='table1',
                                 columns=[],
-                                # When setting column data, set 'editable': True for columns you want editable
                                 data=[],
                                 style_table=table_style,
                                 style_header=header_dict,
                                 style_cell=style_dict
                             )
-
                         ]
                     ),
                 ], id="table1-col"),
+
                 dbc.Col([
                     dcc.Loading(
                         id="loading-table2",
                         type="default",
                         children=[
+                            # Insert the instruction text here
+                            html.Div("Please select the Identifier Variables from the first column to be used as the Primary Key.",
+                                     style={'color': '#3498db', 'fontSize': '14px', 'marginBottom': '10px'}),
+
                             dash_table.DataTable(
                                 id='table2',
-                                columns=[{"name": "Role", "id": "select_column", "type": "text",
-                                          "presentation": "markdown"}] + [],
-
-                                data=[],
                                 editable=False,  # Allow content to be editable
                                 row_selectable="multi",  # Allow multiple rows to be selected
                                 selected_rows=[0],
@@ -167,6 +168,17 @@ def style_data_conditional(df):
             })
     return style_data_conditional
 # Define callbacks
+@app.callback(
+    Output('table1-instruction', 'style'),
+    [Input('table1', 'data')]
+)
+def update_instruction_text_style(data):
+    if data:
+        return {'color': '#3498db', 'fontSize': '14px', 'marginBottom': '10px', 'display': 'block'}
+    else:
+        return {'display': 'none'}
+
+
 @app.callback(
     [Output('table1', 'data'),
      Output('table1', 'columns'),

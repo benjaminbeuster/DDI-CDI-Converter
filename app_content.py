@@ -37,14 +37,14 @@ style_dict = {
     'backgroundColor': colors['background'],
     'textAlign': 'center',
     'color': 'white',
-    'fontSize': 14,
+    'fontSize': 14
 }
 
 header_dict = {
     'backgroundColor': colors['background'],
     'textAlign': 'center',
     'color': colors['text'],
-    'fontSize': 14,
+    'fontSize': 14
 }
 
 
