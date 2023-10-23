@@ -11,73 +11,37 @@ from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 import pyreadstat
 import pandas as pd
-from DDICDI_converter import generate_complete_jsonld
-from spss_import import read_sav, create_variable_view
-
-# Modified html_text to use markdown
-markdown_text = """
-## DDI-CDI Subset
-
-This profile utilizes 20 classes from the DDI-CDI model and 2 classes from the SKOS model:
-
-| DDI-CDI Model                  | SKOS Model          |
-|--------------------------------|---------------------|
-| DataStore                      | skos:ConceptScheme  |
-| PhysicalDataset                | skos:Concept        |
-| PhysicalRecordSegment          |                     |
-| PhysicalSegmentLayout          |                     |
-| ValueMapping                   |                     |
-| ValueMappingPosition           |                     |
-| DataPoint                      |                     |
-| DataPointPosition              |                     |
-| InstanceValue                  |                     |
-| LogicalRecord                  |                     |
-| WideDataSet                    |                     |
-| WideDataStructure              |                     |
-| IdentifierComponent            |                     |
-| MeasureComponent               |                     |
-| PrimaryKey                     |                     |
-| PrimaryKeyComponent            |                     |
-| InstanceVariable               |                     |
-| SubstantiveConceptualDomain    |                     |
-| SentinelConceptualDomain       |                     |
-| ValueAndConceptDescription     |                     |
-"""
-
+from DDICDI_converter import generate_complete_jsonld, generate_complete_jsonld2
+from spss_import import read_sav, create_variable_view, create_variable_view2
+from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SUPERHERO])
-app.title = "SAV File Viewer"
+app.title = app_title
 
-# Define the navbar
+sikt_logo = html.Img(
+    src=app.get_asset_url('sikt.jpg'),
+    style={
+        'height': '40px',
+        'maxWidth': '100%',
+        'objectFit': 'contain',
+        'marginRight': '10px'
+    }
+)
+
+brand_section = html.Div([
+    dbc.NavLink(app_title, href="#", style={'verticalAlign': 'middle'}, className='ml-0')  # Add className='ml-0' and remove marginRight
+])
+
 navbar = dbc.NavbarSimple(
     children=[
-        dbc.NavItem(dbc.NavLink("DDI-CDI Sample Generator - Wide Datafile", href="#")),
+        dbc.NavItem(dbc.NavLink(app_description, href="#")),
+        sikt_logo  # This places the logo right after the app_description
     ],
-    brand="SAV File Viewer",
+    brand=brand_section,
     brand_href="#",
     color="dark",
     dark=True,
 )
-
-colors = {'background': '#111111', 'text': '#7FDBFF'}
-
-style_dict = {
-    'backgroundColor': colors['background'],
-    'textAlign': 'center',
-    'color': 'white',
-    'fontSize': 14,
-}
-
-header_dict = {
-    'backgroundColor': colors['background'],
-    'textAlign': 'center',
-    'color': colors['text'],
-    'fontSize': 16,
-}
-
-
-table_style = {'overflowX': 'auto', 'overflowY': 'auto', 'maxHeight': '350px',
-               'maxWidth': 'auto', 'marginTop': '10px'}
 
 
 app.layout = dbc.Container([
@@ -87,14 +51,15 @@ app.layout = dbc.Container([
             html.Br(),
             dcc.Upload(
                 id='upload-data',
-                children=dbc.Button('Import SPSS', color="primary", className="mr-1"),
+                children=dbc.Button('Import Data', color="primary", className="mr-1"),
                 multiple=False,
-                accept=".sav"
+                accept=".sav,.dta"  # Accept both .sav and .dta files
             ),
+
             html.Br(),
 
             # Add a button to switch between tables
-            dbc.Button("Switch Table", id="table-switch-button", color="primary", className="mr-1"),
+            dbc.Button("Switch View", id="table-switch-button", color="primary", className="mr-1"),
 
             html.Br(),
 
@@ -105,6 +70,13 @@ app.layout = dbc.Container([
                         id="loading-table1",
                         type="default",
                         children=[
+                            # Insert the refined instruction text here with an id and hidden style
+                            html.Div(
+                                "This table displays the first 5 rows of the data file. Note: The JSON output is also limited to these 5 rows.",
+                                id="table1-instruction",
+                                style={'color': '#3498db', 'fontSize': '14px', 'marginBottom': '10px',
+                                       'display': 'none'}),
+
                             dash_table.DataTable(
                                 id='table1',
                                 columns=[],
@@ -112,19 +84,25 @@ app.layout = dbc.Container([
                                 style_table=table_style,
                                 style_header=header_dict,
                                 style_cell=style_dict
-                            ),
+                            )
                         ]
                     ),
                 ], id="table1-col"),
+
                 dbc.Col([
                     dcc.Loading(
                         id="loading-table2",
                         type="default",
                         children=[
+                            # Insert the instruction text here
+                            html.Div("Please select the Identifier Variables from the first column to be used as the Primary Key.",
+                                     style={'color': '#3498db', 'fontSize': '14px', 'marginBottom': '10px'}),
+
                             dash_table.DataTable(
                                 id='table2',
-                                columns=[],
-                                data=[],
+                                editable=False,  # Allow content to be editable
+                                row_selectable="multi",  # Allow multiple rows to be selected
+                                selected_rows=[0],
                                 style_table=table_style,
                                 style_header=header_dict,
                                 style_cell=style_dict
@@ -189,48 +167,87 @@ def style_data_conditional(df):
                 'height': 'auto',
             })
     return style_data_conditional
+# Define callbacks
+@app.callback(
+    Output('table1-instruction', 'style'),
+    [Input('table1', 'data')]
+)
+def update_instruction_text_style(data):
+    if data:
+        return {'color': '#3498db', 'fontSize': '14px', 'marginBottom': '10px', 'display': 'block'}
+    else:
+        return {'display': 'none'}
 
 
 @app.callback(
     [Output('table1', 'data'),
      Output('table1', 'columns'),
-     Output('table1', 'style_data_conditional'), # Add this to apply conditional styling
+     Output('table1', 'style_data_conditional'),
      Output('table2', 'data'),
      Output('table2', 'columns'),
-     Output('table2', 'style_data_conditional'), # And this too
+     Output('table2', 'style_data_conditional'),
      Output('json-ld-output', 'children'),
      Output('btn-download', 'style')],
-    [Input('upload-data', 'contents')],
-    [State('upload-data', 'filename')]
+    [Input('upload-data', 'contents'),
+     Input('table2', 'selected_rows')],
+    [State('upload-data', 'filename'),
+     State('table2', 'data')]
 )
-def update_output(contents, filename):
-    if contents is None:
-        return [], [], [], [], [], [], '', {'display': 'none'}
+
+def combined_callback(contents, selected_rows, filename, table2_data):
+    # Initialization
+    df_meta = None
+
+    if not contents:
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
-    tmp_fd, tmp_filename = tempfile.mkstemp(suffix='.sav')
+
+    # Use the original file's extension for the temporary file
+    file_extension = os.path.splitext(filename)[1]
+    tmp_fd, tmp_filename = tempfile.mkstemp(suffix=file_extension)
+
     with os.fdopen(tmp_fd, 'wb') as tmp_file:
         tmp_file.write(decoded)
 
     try:
-        df, df_meta = read_sav(tmp_filename)
-        df2 = create_variable_view(df_meta)
-        df = df.head(10)
-        columns = [{"name": i, "id": i} for i in df.columns]
+        if '.dta' in tmp_filename:
+            df, df_meta = read_sav(tmp_filename)  # Assuming read_sav can also handle .dta files
+            df2 = create_variable_view2(df_meta)
+        elif '.sav' in tmp_filename:
+            df, df_meta = read_sav(tmp_filename)
+            df2 = create_variable_view(df_meta)
+        else:
+            raise ValueError("Unsupported file type")
+
+        columns1 = [{"name": i, "id": i} for i in df.columns]
         columns2 = [{"name": i, "id": i} for i in df2.columns]
+        conditional_styles1 = style_data_conditional(df)
+        conditional_styles2 = style_data_conditional(df2)
 
-        conditional_styles1 = style_data_conditional(df) # Calculate conditional styles for table1
-        conditional_styles2 = style_data_conditional(df2) # Calculate conditional styles for table2
+        # Generate JSON-LD based on selected rows
+        if selected_rows and table2_data and df_meta:
+            vars = []
+            for row_index in selected_rows:
+                selected_row_data = table2_data[row_index]
+                vars.append(selected_row_data["name"])
+            jsonld_data = generate_complete_jsonld2(df, df_meta, vars, filename)
+        else:
+            jsonld_data = generate_complete_jsonld(df, df_meta, filename)
 
-        jsonld_data = generate_complete_jsonld(df, df_meta, filename)
-        return (df.to_dict('records'), columns, conditional_styles1, df2.to_dict('records'),
+        return (df.to_dict('records'), columns1, conditional_styles1, df2.to_dict('records'),
                 columns2, conditional_styles2, jsonld_data, {'display': 'block'})
+
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return [], [], [], [], [], [], f"An error occurred while processing the file.", {'display': 'none'}
+
     finally:
         os.remove(tmp_filename)
+
+
+
 @app.callback(
     [Output("table1-col", "style"),
      Output("table2-col", "style")],
@@ -240,14 +257,12 @@ def update_output(contents, filename):
 )
 def switch_table(n_clicks, style1, style2):
     if n_clicks is None:
-        return style1, style2  # Return the current styles if n_clicks is None
+        return style1, style2
 
     if n_clicks % 2 == 0:
         return {'display': 'block'}, {'display': 'none'}
     else:
         return {'display': 'none'}, {'display': 'block'}
-
-# ... [The remaining callbacks and main execution code remains unchanged]
 
 
 @app.callback(
