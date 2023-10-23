@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 
 # Create functions
-
 def generate_InstanceVariable(df_meta):
     json_ld_data = []
 
@@ -19,16 +18,18 @@ def generate_InstanceVariable(df_meta):
             "hasIntendedDataType": df_meta.original_variable_types[variable]
         }
 
-        # Check if variable is in keys and if so, add an extra key-value pair
+        # Check if variable has substantive concepts
         if variable in df_meta.variable_value_labels:
             elements['takesSubstantiveConceptsFrom'] = f"#substantiveConceptualDomain-{variable}"
 
-        if variable in df_meta.missing_ranges:
+        # Check if variable has sentinel concepts
+        if variable in df_meta.missing_ranges or (len(df_meta.missing_ranges) == 0 and variable in df_meta.missing_user_values):
             elements['takesSentinelConceptsFrom'] = f"#sentinelConceptualDomain-{variable}"
 
         json_ld_data.append(elements)
 
     return json_ld_data
+
 
 
 # In[ ]:
@@ -435,95 +436,88 @@ def generate_SubstantiveConceptualDomain(df_meta):
 def generate_SubstantiveConceptScheme(df_meta):
     json_ld_data = []
 
+    # Determine the relevant variables based on the presence of missing values
+    relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
+
     for variable_name, values_dict in df_meta.variable_value_labels.items():
         elements = {
             "@id": f"#substantiveConceptScheme-{variable_name}",
             "@type": "skos:ConceptScheme",
         }
 
-        has_top_concept = []
+        excluded_values = set()
 
-        # Check if variable_name is in missing_ranges
-        if variable_name in df_meta.missing_ranges:
-            excluded_ranges = set()
-            for dict_range in df_meta.missing_ranges[variable_name]:
-                lo_is_numeric = isinstance(dict_range['lo'], (int, float)) or (
-                        isinstance(dict_range['lo'], str) and dict_range['lo'].isnumeric()
-                )
-                hi_is_numeric = isinstance(dict_range['hi'], (int, float)) or (
-                        isinstance(dict_range['hi'], str) and dict_range['hi'].isnumeric()
-                )
+        # Check if variable_name is in relevant_variables
+        if variable_name in relevant_variables:
 
-                if lo_is_numeric and hi_is_numeric:
-                    # Case: 'lo' and 'hi' can be converted to int
-                    excluded_ranges.update(
-                        range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1)
+            # If the relevant variable data is based on ranges and contains dictionaries
+            if isinstance(relevant_variables[variable_name], list) and all(
+                    isinstance(item, dict) for item in relevant_variables[variable_name]):
+                for dict_range in relevant_variables[variable_name]:
+                    lo_is_numeric = isinstance(dict_range['lo'], (int, float)) or (
+                            isinstance(dict_range['lo'], str) and dict_range['lo'].isnumeric()
                     )
-                elif isinstance(dict_range['lo'], str):
-                    # Case: 'lo' is a string that is not numeric
-                    excluded_ranges.add(dict_range['lo'])
-                else:
-                    print(f"Warning: Unsupported 'lo' value: {dict_range['lo']}")
+                    hi_is_numeric = isinstance(dict_range['hi'], (int, float)) or (
+                            isinstance(dict_range['hi'], str) and dict_range['hi'].isnumeric()
+                    )
 
-            # Use list comprehension to generate the hasTopConcept list
-            has_top_concept = [
-                f"#{variable_name}-concept-{value}"
-                for value in values_dict.keys()
-                if not is_value_in_excluded_ranges(value, excluded_ranges)
-            ]
-        else:
-            has_top_concept = [
-                f"#{variable_name}-concept-{value}"
-                for value in values_dict.keys()
-            ]
+                    if lo_is_numeric and hi_is_numeric:
+                        excluded_values.update(
+                            range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1)
+                        )
+                    elif isinstance(dict_range['lo'], str):
+                        excluded_values.add(dict_range['lo'])
+                    else:
+                        print(f"Warning: Unsupported 'lo' value: {dict_range['lo']}")
 
-        # Add the hasTopConcept list to elements
-        elements['skos:hasTopConcept'] = has_top_concept
-        json_ld_data.append(elements)
+            # If the relevant variable data contains strings (user-defined missing values)
+            elif isinstance(relevant_variables[variable_name], list):
+                excluded_values.update(set(map(str, relevant_variables[variable_name])))
+
+        # Use list comprehension to generate the hasTopConcept list
+        has_top_concept = [
+            f"#{variable_name}-concept-{value}"
+            for value in values_dict.keys()
+            if str(value) not in excluded_values
+        ]
+
+        # Only add to json_ld_data if has_top_concept list is not empty
+        if has_top_concept:
+            elements['skos:hasTopConcept'] = has_top_concept
+            json_ld_data.append(elements)
 
     return json_ld_data
 
 
-def is_value_in_excluded_ranges(value, excluded_ranges):
-    try:
-        return int(value) in excluded_ranges
-    except ValueError:
-        # value is not a number, skip it
-        return False
-
-
-# In[ ]:
-
-
-# SentinelConceptualDomain
+# ValueAndConceptDescription
 def generate_ValueAndConceptDescription(df_meta):
-    json_ld_data = []
-    for variable, value in df_meta.missing_ranges.items():
-        elements = {
+    # Determine the relevant variables based on the presence of missing values
+    relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
+
+    return [
+        {
             "@id": f"#valueAndConceptDescription-{variable}",
             "@type": "ValueAndConceptDescription",
-            "isDescribedBy": f"{value}",
+            "isDescribedBy": str(value),
         }
-
-        json_ld_data.append(elements)
-
-    return json_ld_data
-
+        for variable, value in relevant_variables.items()
+    ]
 
 # In[ ]:
-
 
 # SentinelConceptualDomain
 def generate_SentinelConceptualDomain(df_meta):
     json_ld_data = []
-    for variable in df_meta.missing_ranges:
 
+    # Determine the relevant variables based on the presence of missing values
+    relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
+
+    for variable in relevant_variables:
         elements = {
             "@id": f"#sentinelConceptualDomain-{variable}",
             "@type": "SentinelConceptualDomain",
             "isDescribedBy": f"#valueAndConceptDescription-{variable}",
         }
-
         if variable in df_meta.variable_value_labels.keys():
             elements["takesConceptsFrom"] = f"#sentinelConceptScheme-{variable}"
 
@@ -532,11 +526,19 @@ def generate_SentinelConceptualDomain(df_meta):
     return json_ld_data
 
 
-# In[ ]:
-
-
+# SentinelConceptScheme
 def generate_SentinelConceptScheme(df_meta):
     json_ld_data = []
+
+    # Determine the relevant variables based on the presence of missing values
+    relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
+
+    def is_value_in_range(value, ranges):
+        """Check if a value is in any of the given ranges."""
+        for range_dict in ranges:
+            if range_dict['lo'] <= value <= range_dict['hi']:
+                return True
+        return False
 
     for variable_name, values_dict in df_meta.variable_value_labels.items():
         elements = {
@@ -546,34 +548,21 @@ def generate_SentinelConceptScheme(df_meta):
 
         has_top_concept = []
 
-        # Check if variable_name is in missing_ranges
-        if variable_name in df_meta.missing_ranges:
-            excluded_ranges = set()
-            for dict_range in df_meta.missing_ranges[variable_name]:
-                lo_is_numeric = isinstance(dict_range['lo'], (int, float)) or (
-                        isinstance(dict_range['lo'], str) and dict_range['lo'].isnumeric()
-                )
-                hi_is_numeric = isinstance(dict_range['hi'], (int, float)) or (
-                        isinstance(dict_range['hi'], str) and dict_range['hi'].isnumeric()
-                )
-
-                if lo_is_numeric and hi_is_numeric:
-                    # Case: 'lo' and 'hi' can be converted to int
-                    excluded_ranges.update(
-                        range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1)
-                    )
-                elif isinstance(dict_range['lo'], str):
-                    # Case: 'lo' is a string that is not numeric
-                    excluded_ranges.add(dict_range['lo'])
-                else:
-                    print(f"Warning: Unsupported 'lo' value: {dict_range['lo']}")
-
-            # Use list comprehension to generate the hasTopConcept list
-            has_top_concept = [
-                f"#{variable_name}-concept-{value}"
-                for value in values_dict.keys()
-                if is_value_in_excluded_ranges(value, excluded_ranges)
-            ]
+        if variable_name in relevant_variables:
+            if variable_name in df_meta.missing_ranges:
+                # Use list comprehension to generate the hasTopConcept list
+                has_top_concept = [
+                    f"#{variable_name}-concept-{value}"
+                    for value in values_dict.keys()
+                    if is_value_in_range(value, df_meta.missing_ranges[variable_name])
+                ]
+            else:
+                excluded_values = set(df_meta.missing_user_values[variable_name])
+                has_top_concept = [
+                    f"#{variable_name}-concept-{value}"
+                    for value in values_dict.keys()
+                    if value in excluded_values
+                ]
 
         # Add the hasTopConcept list to elements
         elements['skos:hasTopConcept'] = has_top_concept
@@ -732,11 +721,11 @@ def generate_complete_jsonld(df, df_meta, spssfile='name'):
     MeasureComponent = generate_MeasureComponent(df_meta)
     IdentifierComponent = generate_IdentifierComponent(df_meta)
 
-    json_ld_graph = DataStore + PhysicalDataset + PhysicalRecordSegment + PhysicalSegmentLayout + ValueMapping + \
-                    ValueMappingPosition + DataPoint + DataPointPosition + InstanceValue + LogicalRecord + WideDataSet + \
+    json_ld_graph = DataStore + LogicalRecord + WideDataSet + \
                     WideDataStructure + IdentifierComponent + MeasureComponent + PrimaryKey + PrimaryKeyComponent + InstanceVariable + \
                     SubstantiveConceptualDomain + SubstantiveConceptScheme + SentinelConceptualDomain + ValueAndConceptDescription + \
-                    SentinelConceptScheme + Concept
+                    SentinelConceptScheme + Concept + PhysicalDataset + PhysicalRecordSegment + PhysicalSegmentLayout + ValueMapping + \
+                    ValueMappingPosition + DataPoint + DataPointPosition + InstanceValue
     # Create a dictionary with the specified "@context" and "@graph" keys
     json_ld_dict = {
         "@context": [
