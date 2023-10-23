@@ -795,11 +795,11 @@ def generate_complete_jsonld2(df, df_meta, vars=None, spssfile='name'):
     MeasureComponent = generate_MeasureComponent2(df_meta, vars)
     IdentifierComponent = generate_IdentifierComponent2(df_meta, vars)
 
-    json_ld_graph = DataStore + PhysicalDataset + PhysicalRecordSegment + PhysicalSegmentLayout + ValueMapping + \
-                    ValueMappingPosition + DataPoint + DataPointPosition + InstanceValue + LogicalRecord + WideDataSet + \
+    json_ld_graph = DataStore + LogicalRecord + WideDataSet + \
                     WideDataStructure + IdentifierComponent + MeasureComponent + PrimaryKey + PrimaryKeyComponent + InstanceVariable + \
                     SubstantiveConceptualDomain + SubstantiveConceptScheme + SentinelConceptualDomain + ValueAndConceptDescription + \
-                    SentinelConceptScheme + Concept
+                    SentinelConceptScheme + Concept + PhysicalDataset + PhysicalRecordSegment + PhysicalSegmentLayout + ValueMapping + \
+                    ValueMappingPosition + DataPoint + DataPointPosition + InstanceValue
     # Create a dictionary with the specified "@context" and "@graph" keys
     json_ld_dict = {
         "@context": [
