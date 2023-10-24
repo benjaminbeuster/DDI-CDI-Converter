@@ -28,7 +28,7 @@ This profile utilizes 20 classes from the DDI-CDI model and 2 classes from the S
 | ValueAndConceptDescription     |                     |
 """
 
-app_title = 'DDI-CDI Wide Table Generator'
+app_title = 'DDI-CDI Converter: Wide Table Generation for STATA & SPSS'
 app_description = ''
 
 colors = {'background': '#111111', 'text': '#7FDBFF'}
