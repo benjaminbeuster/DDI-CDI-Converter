@@ -16,13 +16,9 @@ def generate_InstanceVariable(df_meta):
             "@type": "InstanceVariable",
             "name": variable,
             "displayLabel": df_meta.column_labels[idx],
-            "hasIntendedDataType": df_meta.original_variable_types[variable]
+            "hasIntendedDataType": df_meta.original_variable_types[variable],
+            'takesSubstantiveConceptsFrom' : f"#substantiveConceptualDomain-{variable}"
         }
-
-        # Check if variable has substantive concepts
-        if variable in df_meta.variable_value_labels:
-            elements['takesSubstantiveConceptsFrom'] = f"#substantiveConceptualDomain-{variable}"
-
         # Check if variable has sentinel concepts
         if variable in df_meta.missing_ranges or (len(df_meta.missing_ranges) == 0 and variable in df_meta.missing_user_values):
             elements['takesSentinelConceptsFrom'] = f"#sentinelConceptualDomain-{variable}"
@@ -30,8 +26,6 @@ def generate_InstanceVariable(df_meta):
         json_ld_data.append(elements)
 
     return json_ld_data
-
-
 
 # In[ ]:
 
@@ -419,12 +413,17 @@ def generate_Code(df_meta):
 # SubstantiveConceptualDomain
 def generate_SubstantiveConceptualDomain(df_meta):
     json_ld_data = []
-    for variable in (df_meta.variable_value_labels):
+
+    for var in df_meta.column_names:
         elements = {
-            "@id": f"#substantiveConceptualDomain-{variable}",
+            "@id": f"#substantiveConceptualDomain-{var}",
             "@type": "SubstantiveConceptualDomain",
-            "takesConceptsFrom": f"#substantiveConceptScheme-{variable}"
+            "isDescribedBy": f"#substantiveValueAndConceptDescription-{var}"
         }
+
+        if var in df_meta.variable_value_labels:
+            elements["takesConceptsFrom"] = f"#substantiveConceptScheme-{var}"
+
         json_ld_data.append(elements)
 
     return json_ld_data
@@ -493,17 +492,42 @@ def generate_SubstantiveConceptScheme(df_meta):
 # ValueAndConceptDescription
 def generate_ValueAndConceptDescription(df_meta):
     # Determine the relevant variables based on the presence of missing values
-    relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
+    relevant_variables = {}
+    if df_meta.missing_ranges:
+        relevant_variables = df_meta.missing_ranges
+    elif df_meta.missing_user_values:
+        relevant_variables = df_meta.missing_user_values
 
-    return [
-        {
-            "@id": f"#valueAndConceptDescription-{variable}",
+    json_ld_data = []
+
+    for variable in df_meta.column_names:
+        # Add substantiveValueAndConceptDescription for every variable
+        json_ld_data.append({
+            "@id": f"#substantiveValueAndConceptDescription-{variable}",
             "@type": "ValueAndConceptDescription",
-            "isDescribedBy": str(value),
-        }
-        for variable, value in relevant_variables.items()
-    ]
+            "classificationLevel": f"{df_meta.variable_measure[variable]}"
+        })
 
+        # Add sentinelValueAndConceptDescription only if the condition is met
+        if variable in relevant_variables:
+            values = relevant_variables[variable]
+            if isinstance(values[0], dict):  # Check if the values are dictionaries
+                all_lo_values = [d['lo'] for d in values]
+                all_hi_values = [d['hi'] for d in values]
+                min_val = min(all_lo_values)
+                max_val = max(all_hi_values)
+            else:
+                min_val, max_val = min(values), max(values)
+
+            json_ld_data.append({
+                "@id": f"#sentinelValueAndConceptDescription-{variable}",
+                "@type": "ValueAndConceptDescription",
+                "description": str(values),
+                "minimumValueExclusive": str(min_val),
+                "maximumValueExclusive": str(max_val),
+            })
+
+    return json_ld_data
 # In[ ]:
 
 # SentinelConceptualDomain
@@ -517,7 +541,7 @@ def generate_SentinelConceptualDomain(df_meta):
         elements = {
             "@id": f"#sentinelConceptualDomain-{variable}",
             "@type": "SentinelConceptualDomain",
-            "isDescribedBy": f"#valueAndConceptDescription-{variable}",
+            "isDescribedBy": f"#sentinelValueAndConceptDescription-{variable}",
         }
         if variable in df_meta.variable_value_labels.keys():
             elements["takesConceptsFrom"] = f"#sentinelConceptScheme-{variable}"
@@ -525,7 +549,6 @@ def generate_SentinelConceptualDomain(df_meta):
         json_ld_data.append(elements)
 
     return json_ld_data
-
 
 # SentinelConceptScheme
 def generate_SentinelConceptScheme(df_meta):
