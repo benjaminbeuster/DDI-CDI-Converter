@@ -1,3 +1,5 @@
+import datetime
+
 # Modified html_text to use markdown
 markdown_text = """
 ## DDI-CDI Subset

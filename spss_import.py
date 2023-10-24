@@ -6,12 +6,15 @@ import pyreadstat as pyr
 pd.set_option('display.max_rows', 2500)
 pd.set_option('display.max_columns', None)
 pd.options.mode.chained_assignment = None
-
+import datetime
+from pathlib import Path
+import pyreadstat as pyr
+import pandas as pd
 
 def read_sav(filename: Path, encoding="utf-8", missings=True):
     kwargs = dict(
         user_missing=missings,
-        dates_as_pandas_datetime=True,
+        dates_as_pandas_datetime=False,  # Do not interpret dates initially
     )
     filename = Path(filename)  # Ensure filename is a Path object
     extension = filename.suffix.lower()
@@ -31,18 +34,23 @@ def read_sav(filename: Path, encoding="utf-8", missings=True):
         except Exception:
             df, meta = pyr.read_dta(filename, encoding="LATIN1", **kwargs)
 
-    # recode dtype
+    # Manually handle the problematic date columns
+    for col in df.columns:
+        if "datetime" in str(df[col].dtype) or "date" in str(df[col].dtype):
+            df[col] = df[col].apply(lambda x: "1678-01-01" if str(x) == "1582-10-14" else x)
+            df[col] = pd.to_datetime(df[col], errors='coerce')
+
+    # Recode dtype
     df = df.head()
     df = df.convert_dtypes()
 
-    # recode string variables
+    # Recode string variables
     for var in df.columns:
         if df[var].dtype == 'string':
             df[[var]].replace({'': pd.NA}, inplace=True)
 
     df.attrs["datafile"] = "file"
     return df, meta
-
 
 ###################################################################
 
