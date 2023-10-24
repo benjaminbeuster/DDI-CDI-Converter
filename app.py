@@ -6,7 +6,6 @@ import os
 import base64
 import tempfile
 import dash
-import datetime
 
 from dash import html, dcc, dash_table
 from dash.dependencies import Input, Output, State
