@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-
+from flask import Flask
 import io
 import os
 import base64
@@ -15,7 +15,14 @@ from DDICDI_converter import generate_complete_jsonld, generate_complete_jsonld2
 from spss_import import read_sav, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SUPERHERO])
+
+# To:
+
+server = Flask(__name__)
+app = dash.Dash(__name__, server=server, external_stylesheets=[dbc.themes.SUPERHERO])
+
+# ... [rest of your code]
+
 app.title = app_title
 
 sikt_logo = html.Img(
