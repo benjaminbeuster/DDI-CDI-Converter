@@ -93,7 +93,7 @@ def create_variable_view(df_meta):
     if 'missing' not in variable_view.columns:
         variable_view['missing'] = pd.NA
 
-    return variable_view[['name', 'format', 'measure', 'label', 'values', 'missing']]
+    return variable_view[['name', 'format', 'label', 'values', 'missing', 'measure']]
 
 
 def create_variable_view2(df_meta):
@@ -144,4 +144,4 @@ def create_variable_view2(df_meta):
     if 'missing' not in variable_view.columns:
         variable_view['missing'] = pd.NA
 
-    return variable_view
+    return variable_view[['name', 'format', 'label', 'values', 'missing', 'measure']]
