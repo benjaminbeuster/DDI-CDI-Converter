@@ -7,9 +7,6 @@ pd.set_option('display.max_rows', 2500)
 pd.set_option('display.max_columns', None)
 pd.options.mode.chained_assignment = None
 import datetime
-from pathlib import Path
-import pyreadstat as pyr
-import pandas as pd
 
 def read_sav(filename: Path, encoding="utf-8", missings=True):
     kwargs = dict(
@@ -34,6 +31,8 @@ def read_sav(filename: Path, encoding="utf-8", missings=True):
         except Exception:
             df, meta = pyr.read_dta(filename, encoding="LATIN1", **kwargs)
 
+    df = df.head()  # Take only the first 5 rows for performance reasons
+
     # Manually handle the problematic date columns
     for col in df.columns:
         if "datetime" in str(df[col].dtype) or "date" in str(df[col].dtype):
@@ -41,7 +40,6 @@ def read_sav(filename: Path, encoding="utf-8", missings=True):
             df[col] = pd.to_datetime(df[col], errors='coerce')
 
     # Recode dtype
-    df = df.head()
     df = df.convert_dtypes()
 
     # Recode string variables
@@ -51,6 +49,7 @@ def read_sav(filename: Path, encoding="utf-8", missings=True):
 
     df.attrs["datafile"] = "file"
     return df, meta
+
 
 ###################################################################
 
