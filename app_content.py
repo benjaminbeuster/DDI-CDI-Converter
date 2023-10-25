@@ -4,20 +4,12 @@ import datetime
 markdown_text = """
 ## DDI-CDI Subset
 
-This profile utilizes 20 classes from the DDI-CDI model and 2 classes from the SKOS model:
+This profile utilizes 23 classes from the DDI-CDI model and 2 classes from the SKOS model:
 
 | DDI-CDI Model                  | SKOS Model          |
 |--------------------------------|---------------------|
 | DataStore                      | skos:ConceptScheme  |
-| PhysicalDataset                | skos:Concept        |
-| PhysicalRecordSegment          |                     |
-| PhysicalSegmentLayout          |                     |
-| ValueMapping                   |                     |
-| ValueMappingPosition           |                     |
-| DataPoint                      |                     |
-| DataPointPosition              |                     |
-| InstanceValue                  |                     |
-| LogicalRecord                  |                     |
+| LogicalRecord                  | skos:Concept        |
 | WideDataSet                    |                     |
 | WideDataStructure              |                     |
 | IdentifierComponent            |                     |
@@ -26,9 +18,26 @@ This profile utilizes 20 classes from the DDI-CDI model and 2 classes from the S
 | PrimaryKeyComponent            |                     |
 | InstanceVariable               |                     |
 | SubstantiveConceptualDomain    |                     |
+| SubstantiveConceptScheme       |                     |
 | SentinelConceptualDomain       |                     |
 | ValueAndConceptDescription     |                     |
+| SentinelConceptScheme          |                     |
+| Concept                        |                     |
+| PhysicalDataset                |                     |
+| PhysicalRecordSegment          |                     |
+| PhysicalSegmentLayout          |                     |
+| ValueMapping                   |                     |
+| ValueMappingPosition           |                     |
+| DataPoint                      |                     |
+| DataPointPosition              |                     |
+| InstanceValue                  |                     |
 """
+
+about_text = '''
+This is a prototype developed for the DDI-CDI group, intended for model and implementation testing,
+as well as for CDI training activities at Sikt. For contact, please reach out to benjamin.beuster@sikt.no.
+'''
+
 
 app_title = 'DDI-CDI Converter: Wide Table Generation for STATA & SPSS'
 app_description = ''

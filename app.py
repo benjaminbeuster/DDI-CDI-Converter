@@ -14,7 +14,8 @@ import pyreadstat
 import pandas as pd
 from DDICDI_converter import generate_complete_jsonld, generate_complete_jsonld2
 from spss_import import read_sav, create_variable_view, create_variable_view2
-from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description
+from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
+
 
 
 # To:
@@ -50,6 +51,14 @@ navbar = dbc.NavbarSimple(
     color="dark",
     dark=True,
 )
+
+about_section = dbc.Card(
+    dbc.CardBody(
+        html.P(about_text, className="card-text")
+    ),
+    className="mt-4",  # Adding some margin at the top for spacing
+)
+
 
 
 app.layout = dbc.Container([
@@ -158,7 +167,8 @@ app.layout = dbc.Container([
 
             ]),
         ])
-    ])
+    ]),
+    about_section  # <-- add this line to include the about_section
 ], fluid=True)
 
 # ... [The initial imports and other code remains unchanged]
