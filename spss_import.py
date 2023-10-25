@@ -8,6 +8,8 @@ pd.set_option('display.max_columns', None)
 pd.options.mode.chained_assignment = None
 import datetime
 
+######################################################################
+
 def read_sav(filename: Path, encoding="utf-8", missings=True):
     kwargs = dict(
         user_missing=missings,
@@ -21,17 +23,19 @@ def read_sav(filename: Path, encoding="utf-8", missings=True):
 
     if extension == '.sav':
         try:
-            df, meta = pyr.read_sav(filename, encoding=encoding, **kwargs)
+            df, meta = pyr.read_sav(filename, encoding=encoding, row_limit=5, **kwargs)
         except Exception:
-            df, meta = pyr.read_sav(filename, encoding="LATIN1", **kwargs)
+            df, meta = pyr.read_sav(filename, encoding="LATIN1", row_limit=5, **kwargs)
 
     elif extension == '.dta':
         try:
-            df, meta = pyr.read_dta(filename, encoding=encoding, **kwargs)
+            df, meta = pyr.read_dta(filename, encoding=encoding, row_limit=5, **kwargs)
         except Exception:
-            df, meta = pyr.read_dta(filename, encoding="LATIN1", **kwargs)
+            df, meta = pyr.read_dta(filename, encoding="LATIN1", row_limit=5, **kwargs)
 
-    df = df.head()  # Take only the first 5 rows for performance reasons
+    # Since you are already limiting the rows while reading,
+    # the following line is redundant and can be removed.
+    # df = df.head()
 
     # Manually handle the problematic date columns
     for col in df.columns:
