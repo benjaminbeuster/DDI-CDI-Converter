@@ -1,4 +1,4 @@
-# Setup for PythonAnywhere
+# Setup description for PythonAnywhere
 1. create a virtual environment in console
 mkvirtualenv myvirtualenv --python=/usr/bin/python3.9
 
