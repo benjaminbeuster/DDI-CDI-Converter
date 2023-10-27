@@ -16,3 +16,5 @@ pip install -r requirements.txt
 
 5. Define WSGI configuration file:
 /var/www/bbeuster_pythonanywhere_com_wsgi.py
+
+6. Click Reload
