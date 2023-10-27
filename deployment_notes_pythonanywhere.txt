@@ -1,14 +1,14 @@
 # Setup for PythonAnywhere
-1. create virtual environment in console
+1. create a virtual environment in console
 mkvirtualenv myvirtualenv --python=/usr/bin/python3.9
 
-2. open virtual environment
+2. open the virtual environment
 workon myvirtualenv
 
 3. install packages
 pip install -r requirements.txt
 
-4. change working directory and path of virtual environment in web-tab:
+4. change working directory and path of the virtual environment in web-tab:
 /home/BBeuster/
 /home/BBEUSTER/.virtualenvs/myvirtualenv
 
