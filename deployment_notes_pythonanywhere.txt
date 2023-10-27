@@ -2,15 +2,15 @@
 1. create virtual environment in console
 mkvirtualenv myvirtualenv --python=/usr/bin/python3.9
 
-2. open irtual environment
+2. open virtual environment
 workon myvirtualenv
 
 3. install packages
 pip install -r requirements.txt
 
-4. change working directory and path for VE on Web tab:
+4. change working directory and path of virtual environment in web-tab:
 /home/BBeuster/
 /home/BBEUSTER/.virtualenvs/myvirtualenv
 
-5. WSGI configuration file:
+5. Define WSGI configuration file:
 /var/www/bbeuster_pythonanywhere_com_wsgi.py
