@@ -1,5 +1,4 @@
 # Setup description for PythonAnywhere:
-test
 https://www.pythonanywhere.com/
 
 1. create a virtual environment in console
