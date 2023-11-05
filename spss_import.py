@@ -10,7 +10,7 @@ import datetime
 
 ######################################################################
 
-def read_sav(filename: Path, encoding="utf-8", missings=True):
+def read_sav(filename: Path, encoding="utf-8", missings=True, disable_datetime_conversion=True):
     kwargs = dict(
         user_missing=missings,
         dates_as_pandas_datetime=False,  # Do not interpret dates initially
