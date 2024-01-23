@@ -4,7 +4,7 @@ import datetime
 markdown_text = """
 ## DDI-CDI Subset
 
-This profile utilizes 23 classes from the DDI-CDI model and 2 classes from the SKOS model:
+This profile utilizes 21 classes from the DDI-CDI model and 2 classes from the SKOS model:
 
 | DDI-CDI Model                  | SKOS Model          |
 |--------------------------------|---------------------|
@@ -18,10 +18,8 @@ This profile utilizes 23 classes from the DDI-CDI model and 2 classes from the S
 | PrimaryKeyComponent            |                     |
 | InstanceVariable               |                     |
 | SubstantiveConceptualDomain    |                     |
-| SubstantiveConceptScheme       |                     |
 | SentinelConceptualDomain       |                     |
 | ValueAndConceptDescription     |                     |
-| SentinelConceptScheme          |                     |
 | Concept                        |                     |
 | PhysicalDataset                |                     |
 | PhysicalRecordSegment          |                     |
