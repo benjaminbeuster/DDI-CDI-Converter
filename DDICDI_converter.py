@@ -106,6 +106,7 @@ def generate_DataStore(df_meta):
     elements = {
         "@id": f"#dataStore",
         "@type": "DataStore",
+        "allowsDuplicates": "false",
         "recordCount": df_meta.number_rows
     }
     has = ["#logicalRecord"]
