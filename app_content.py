@@ -4,7 +4,7 @@ import datetime
 markdown_text = """
 ## DDI-CDI Subset
 
-This profile utilizes 21 classes from the DDI-CDI model (2023-11-12) and 2 classes from the SKOS model:
+This profile utilizes 21 classes from the DDI-CDI model (2024-02-02) and 2 classes from the SKOS model:
 
 | DDI-CDI Model                  | SKOS Model          |
 |--------------------------------|---------------------|

@@ -476,10 +476,11 @@ def generate_SubstantiveConceptScheme(df_meta):
                 excluded_values.update(set(map(str, relevant_variables[variable_name])))
 
         # Use list comprehension to generate the hasTopConcept list
+        excluded_values_str = {str(i) for i in excluded_values}
         has_top_concept = [
             f"#{variable_name}-concept-{value}"
             for value in values_dict.keys()
-            if str(value) not in excluded_values
+            if (not value in excluded_values) and (not str(value) in excluded_values_str)
         ]
 
         # Only add to json_ld_data if has_top_concept list is not empty

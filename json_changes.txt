@@ -1,0 +1,3 @@
+change multiplicity in PrimaryKey-Components
+changes and check all class IDs (harmonize with XML)
+change classification level (CV) in ValueAndConceptDescription
