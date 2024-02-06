@@ -577,11 +577,17 @@ def generate_complete_xml(df, df_meta, spssfile='name'):
     xml_string = etree.tostring(root, encoding='UTF-8', xml_declaration=True, pretty_print=True)
 
     # Add the comment as the second line
-    xml_string_with_comment = xml_string.replace(b'?>', b'?>\n<!-- CDI, version 1, 2024.01.20 -->', 1)
+    # add current time to xml_string
+    import datetime
+    current_time = datetime.datetime.now().isoformat()
 
-    with open(r'files/CDIDDI.xml', 'wb') as f:
-        f.write(xml_string_with_comment)
-    return xml_string_with_comment 
+    # Create the comment string and encode it to bytes
+    comment = f'<!-- CDI, version 1, {current_time} -->'.encode('utf-8')
+
+    # Replace the XML declaration with the declaration followed by the comment
+    xml_string_with_comment = xml_string.replace(b'?>', b'?>\n' + comment, 1)
+
+    return xml_string_with_comment
     
 
 

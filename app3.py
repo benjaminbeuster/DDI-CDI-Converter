@@ -295,8 +295,8 @@ def download_jsonld(n_clicks, jsonld_data, filename):
     if n_clicks is None or filename is None or jsonld_data is None:
         raise dash.exceptions.PreventUpdate
 
-    #download_filename = os.path.splitext(filename)[0] + '.jsonld'
-    #return dict(content=jsonld_data, filename=download_filename, type='text/json')
+    download_filename = os.path.splitext(filename)[0] + '.xml'
+    return dict(content=jsonld_data, filename=download_filename, type='text/xml')
 
 
 if __name__ == '__main__':
