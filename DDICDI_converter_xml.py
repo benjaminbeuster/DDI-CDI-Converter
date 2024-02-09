@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
+
 import sys
 sys.path.append("..")
 import os
@@ -7,6 +8,7 @@ import pandas as pd
 import pyreadstat as pyr
 import json
 import numpy as np
+import datetime
 from spss_import import read_sav
 from lxml import etree
 from xml_functions import remove_empty_elements, add_cdi_element, add_identifier, add_ddiref
@@ -199,7 +201,7 @@ def generate_ValueAndConceptDescription(df_meta):
     json_ld_data = []
 
     # recode classification level
-    class_level = {'nominal': 'Nominal', 'scale': 'Continuous', 'ordinal': 'Ordinal'}
+    class_level = {'nominal': 'Nominal', 'scale': 'Continuous', 'ordinal': 'Ordinal', 'unknown': 'Nominal'}
     for variable in df_meta.column_names:
         element = add_cdi_element(root, 'ValueAndConceptDescription')
         add_cdi_element(element, 'classificationLevel', f"{class_level[df_meta.variable_measure[variable]]}")
@@ -578,7 +580,6 @@ def generate_complete_xml(df, df_meta, spssfile='name'):
 
     # Add the comment as the second line
     # add current time to xml_string
-    import datetime
     current_time = datetime.datetime.now().isoformat()
 
     # Create the comment string and encode it to bytes
@@ -587,8 +588,181 @@ def generate_complete_xml(df, df_meta, spssfile='name'):
     # Replace the XML declaration with the declaration followed by the comment
     xml_string_with_comment = xml_string.replace(b'?>', b'?>\n' + comment, 1)
 
+    # with open(r'files/CDI.xml', 'wb') as f:
+    #     f.write(xml_string_with_comment)
+
     return xml_string_with_comment
+
+# # Repeat function for using multiple PrimaryKeyComponents
+
+# In[ ]:
+
+
+# WideDataStructure2
+def generate_WideDataStructure2(df_meta, vars=None):
+    # Add a CDI element to the root
+    element = add_cdi_element(root, 'WideDataStructure')
     
+    # Add an identifier to the element
+    add_identifier(element, "#wideDataStructure")
+
+    # If vars is None, iterate through all column names in df_meta
+    if vars is None:
+        for x, variable in enumerate(df_meta.column_names):
+            # Add a CDI element to the element
+            DataStructureComponent = add_cdi_element(element, 'DataStructure_has_DataStructureComponent')
+            
+            # Add a DDI reference to the DataStructureComponent
+            add_ddiref(DataStructureComponent, f"#measureComponent-{variable}", agency, "MeasureComponent")
+    
+    # If vars is not None
+    else: 
+        # Iterate through all variables in vars
+        for var in vars:
+            # Add a CDI element to the element
+            DataStructureComponent = add_cdi_element(element, 'DataStructure_has_DataStructureComponent')
+            
+            # Add a DDI reference to the DataStructureComponent
+            add_ddiref(DataStructureComponent, f"#identifierComponent-{var}", agency, "IdentifierComponent")
+        
+        # Iterate through all column names in df_meta
+        for x, variable in enumerate(df_meta.column_names):
+            # If the variable is not in vars
+            if variable not in vars:
+                # Add a CDI element to the element
+                DataStructureComponent = add_cdi_element(element, 'DataStructure_has_DataStructureComponent')
+                
+                # Add a DDI reference to the DataStructureComponent
+                add_ddiref(DataStructureComponent, f"#measureComponent-{variable}", agency, "MeasureComponent")
+
+    # Add a CDI element to the element
+    DataStructure_has_PrimaryKey = add_cdi_element(element, 'DataStructure_has_PrimaryKey')
+    
+    # Add a DDI reference to the DataStructure_has_PrimaryKey
+    add_ddiref(DataStructure_has_PrimaryKey, f"#primaryKey", agency, "PrimaryKey")
+    
+    return root
+
+
+# In[ ]:
+
+
+# IdentifierComponent
+def generate_IdentifierComponent2(df_meta, vars=None):
+    if vars is not None:
+        for var in vars:
+            element = add_cdi_element(root, 'IdentifierComponent')
+            add_identifier(element, f"#identifierComponent-{var}")
+            DataStructureComponent_isDefinedBy_RepresentedVariable = add_cdi_element(element, 'DataStructureComponent_isDefinedBy_RepresentedVariable')
+            add_ddiref(DataStructureComponent_isDefinedBy_RepresentedVariable, f"#instanceVariable-{var}", agency, "InstanceVariable")
+    return root
+
+
+# In[ ]:
+
+
+# MeasureComponent2
+def generate_MeasureComponent2(df_meta, vars=None):
+    if vars is None:
+        for variable in df_meta.column_names: 
+            MeasureComponent = add_cdi_element(root, 'MeasureComponent')
+            add_identifier(MeasureComponent, f"#measureComponent-{variable}")
+            DataStructureComponent_isDefinedBy_RepresentedVariable = add_cdi_element(MeasureComponent, 'DataStructureComponent_isDefinedBy_RepresentedVariable')
+            add_ddiref(DataStructureComponent_isDefinedBy_RepresentedVariable, f"#instanceVariable-{variable}", agency, "InstanceVariable")
+    else:
+        for variable in (df_meta.column_names):
+            if variable not in vars:
+                MeasureComponent = add_cdi_element(root, 'MeasureComponent')
+                add_identifier(MeasureComponent, f"#measureComponent-{variable}")
+                DataStructureComponent_isDefinedBy_RepresentedVariable = add_cdi_element(MeasureComponent, 'DataStructureComponent_isDefinedBy_RepresentedVariable')
+                add_ddiref(DataStructureComponent_isDefinedBy_RepresentedVariable, f"#instanceVariable-{variable}", agency, "InstanceVariable")
+    return root
+
+
+# In[ ]:
+
+
+# PrimaryKey2
+def generate_PrimaryKey2(df_meta, vars=None):
+    element = add_cdi_element(root, 'PrimaryKey')
+    add_identifier(element, f"#primaryKey")
+    if vars is not None:
+        for var in vars:
+            PrimaryKey_isComposedOf_PrimaryKeyComponent = add_cdi_element(element, 'PrimaryKey_isComposedOf_PrimaryKeyComponent')
+            add_ddiref(PrimaryKey_isComposedOf_PrimaryKeyComponent, f"#primaryKeyComponent-{var}", agency, f"PrimaryKeyComponent")
+    return root
+
+
+# In[ ]:
+
+
+# PrimaryKeyComponent2
+def generate_PrimaryKeyComponent2(df_meta, vars=None):
+    if vars is not None:
+        for var in vars:
+            element = add_cdi_element(root, 'PrimaryKeyComponent')
+            add_identifier(element, f"#primaryKeyComponent-{var}")
+            PrimaryKeyComponent_correspondsTo_DataStructureComponent = add_cdi_element(element, 'PrimaryKeyComponent_correspondsTo_DataStructureComponent')
+            add_ddiref(PrimaryKeyComponent_correspondsTo_DataStructureComponent, f"#identifierComponent-{var}", agency, "IdentifierComponent")
+    return root
+
+
+# In[ ]:
+
+
+def generate_complete_xml2(df, df_meta, vars=None, spssfile='name'):
+    # Define the namespace
+    nsmap = {'cdi': 'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/'}
+    # Create the root element
+    global root
+    root = etree.Element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap)
+    root.set('{http://www.w3.org/2001/XMLSchema-instance}schemaLocation',
+             'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ https://ddi-cdi-resources.bitbucket.io/2023-11-12/encoding/xml-schema/ddi-cdi.xsd')
+    global agency
+    agency='int.esseric'
+
+    generate_DataStore(df_meta)
+    generate_LogicalRecord(df_meta)
+    generate_WideDataSet(df_meta)
+    generate_WideDataStructure2(df_meta, vars)
+    generate_IdentifierComponent2(df_meta, vars)
+    generate_MeasureComponent2(df_meta, vars)
+    generate_PrimaryKey2(df_meta, vars)
+    generate_PrimaryKeyComponent2(df_meta, vars)
+    generate_InstanceVariable(df_meta)
+    generate_SubstantiveValueDomain(df_meta)
+    generate_SentinelValueDomain(df_meta)
+    generate_ValueAndConceptDescription(df_meta)
+    generate_CodeList(df_meta)
+    generate_SentinelCodelist(df_meta)
+    generate_Code(df_meta)
+    generate_Category_Notation(df_meta)
+    generate_PhysicalDataset(df_meta, spssfile)
+    generate_PhysicalRecordSegment(df, df_meta)
+    generate_PhysicalSegmentLayout(df_meta)
+    generate_ValueMapping(df, df_meta)
+    generate_ValueMappingPosition(df_meta)
+    generate_DataPoint(df, df_meta)
+    generate_DataPointPosition(df, df_meta)
+    generate_InstanceValue(df, df_meta)
+
+    # Add XML declaration and write XML file
+    xml_string = etree.tostring(root, encoding='UTF-8', xml_declaration=True, pretty_print=True)
+
+    # Add the comment as the second line
+    # add current time to xml_string
+    current_time = datetime.datetime.now().isoformat()
+
+    # Create the comment string and encode it to bytes
+    comment = f'<!-- CDI, version 1, {current_time} -->'.encode('utf-8')
+
+    # Replace the XML declaration with the declaration followed by the comment
+    xml_string_with_comment = xml_string.replace(b'?>', b'?>\n' + comment, 1)
+
+    # with open(r'files/CDI2.xml', 'wb') as f:
+    #     f.write(xml_string_with_comment)
+
+    return xml_string_with_comment
 
 
 
