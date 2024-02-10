@@ -7,8 +7,8 @@ mkvirtualenv myvirtualenv --python=/usr/bin/python3.9
 2. open the virtual environment
 workon myvirtualenv
 
-3. install packages
-pip install -r requirements.txt
+3. install packages from mysite
+pip3.9 install -r requirements.txt
 
 4. change working directory and path of the virtual environment in web-tab:
 /home/BBeuster/
