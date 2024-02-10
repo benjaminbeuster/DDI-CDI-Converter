@@ -580,10 +580,10 @@ def generate_complete_xml(df, df_meta, spssfile='name'):
 
     # Add the comment as the second line
     # add current time to xml_string
-    current_time = datetime.datetime.now().isoformat()
+    current_time = datetime.datetime.now().strftime("%d %B %Y, %I:%M:%S %p")
 
     # Create the comment string and encode it to bytes
-    comment = f'<!-- CDI, version 1, {current_time} -->'.encode('utf-8')
+    comment = f'<!-- CDI version 1, generated: {current_time} -->'.encode('utf-8')
 
     # Replace the XML declaration with the declaration followed by the comment
     xml_string_with_comment = xml_string.replace(b'?>', b'?>\n' + comment, 1)
@@ -751,10 +751,11 @@ def generate_complete_xml2(df, df_meta, vars=None, spssfile='name'):
 
     # Add the comment as the second line
     # add current time to xml_string
-    current_time = datetime.datetime.now().isoformat()
+    current_time = datetime.datetime.now().strftime("%d %B %Y, %I:%M:%S %p")
 
     # Create the comment string and encode it to bytes
-    comment = f'<!-- CDI, version 1, {current_time} -->'.encode('utf-8')
+    comment = f'<!-- CDI version 1, generated: {current_time} -->'.encode('utf-8')
+
 
     # Replace the XML declaration with the declaration followed by the comment
     xml_string_with_comment = xml_string.replace(b'?>', b'?>\n' + comment, 1)

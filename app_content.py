@@ -4,31 +4,33 @@ import datetime
 markdown_text = """
 ## DDI-CDI Subset
 
-This profile utilizes 21 classes from the DDI-CDI model (2024-02-02) and 2 classes from the SKOS model:
-
-| DDI-CDI Model                  | SKOS Model          |
-|--------------------------------|---------------------|
-| DataStore                      | skos:ConceptScheme  |
-| LogicalRecord                  | skos:Concept        |
-| WideDataSet                    |                     |
-| WideDataStructure              |                     |
-| IdentifierComponent            |                     |
-| MeasureComponent               |                     |
-| PrimaryKey                     |                     |
-| PrimaryKeyComponent            |                     |
-| InstanceVariable               |                     |
-| SubstantiveConceptualDomain    |                     |
-| SentinelConceptualDomain       |                     |
-| ValueAndConceptDescription     |                     |
-| Concept                        |                     |
-| PhysicalDataset                |                     |
-| PhysicalRecordSegment          |                     |
-| PhysicalSegmentLayout          |                     |
-| ValueMapping                   |                     |
-| ValueMappingPosition           |                     |
-| DataPoint                      |                     |
-| DataPointPosition              |                     |
-| InstanceValue                  |                     |
+This profile utilizes 25 classes from the DDI-CDI model (2023-11-23).                  |
+|--------------------------------|
+| DataStore                      |
+| LogicalRecord                  |
+| WideDataSet                    |
+| WideDataStructure              |
+| IdentifierComponent            |
+| MeasureComponent               |
+| PrimaryKey                     |
+| PrimaryKeyComponent            |
+| InstanceVariable               |
+| SubstantiveValueDomain         |
+| SentinelValueDomain            |
+| ValueAndConceptDescription     |
+| Codelist                       |
+| Concept                        |
+| Code                           |
+| Category                       |
+| Notation                       |
+| PhysicalDataset                |
+| PhysicalRecordSegment          |
+| PhysicalSegmentLayout          |
+| ValueMapping                   |
+| ValueMappingPosition           |
+| DataPoint                      |
+| DataPointPosition              |
+| InstanceValue                  |
 """
 
 from datetime import datetime
@@ -37,8 +39,8 @@ about_text = '''
 This is a prototype developed for the DDI-CDI group, intended for model and implementation testing,
 as well as for CDI training activities at Sikt. For contact, please reach out to benjamin.beuster@sikt.no.
 
-Last update: {}
-'''.format(datetime.now().strftime('%Y-%m-%d'))
+Last update: 10.02.2024
+'''
 
 app_title = 'DDI-CDI Converter: Wide Table Generation for STATA & SPSS'
 app_description = ''

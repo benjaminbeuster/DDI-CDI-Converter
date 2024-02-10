@@ -12,7 +12,8 @@ from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 import pyreadstat
 import pandas as pd
-from DDICDI_converter import generate_complete_jsonld, generate_complete_jsonld2
+from DDICDI_converter_xml import generate_complete_xml, generate_complete_xml2
+#from DDICDI_converter import generate_complete_xml, generate_complete_xml2
 from spss_import import read_sav, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
 
@@ -89,7 +90,7 @@ app.layout = dbc.Container([
                         children=[
                             # Insert the refined instruction text here with an id and hidden style
                             html.Div(
-                                "This table displays the first 5 rows of the data file. Note: The JSON output is also limited to these 5 rows.",
+                                "This table displays the first 5 rows of the data file. Note: The XML output is also limited to these 5 rows.",
                                 id="table1-instruction",
                                 style={'color': '#3498db', 'fontSize': '14px', 'marginBottom': '10px',
                                        'display': 'none'}),
@@ -130,14 +131,14 @@ app.layout = dbc.Container([
             ]),
 
             html.Br(),
-            dbc.Button('Download JSON-LD', id='btn-download', color="success", className="mr-1",
+            dbc.Button('Download XML', id='btn-download', color="success", className="mr-1",
                        style={'display': 'none'}),
-            dcc.Download(id='download-jsonld'),
+            dcc.Download(id='download-xml'),
             html.Br(),
             dbc.Row([
                 dbc.Col([
                     html.Pre(
-                        id='json-ld-output',
+                        id='xml-ld-output',
                         style={
                             'whiteSpace': 'pre',
                             'wordBreak': 'break-all',
@@ -204,7 +205,7 @@ def update_instruction_text_style(data):
      Output('table2', 'data'),
      Output('table2', 'columns'),
      Output('table2', 'style_data_conditional'),
-     Output('json-ld-output', 'children'),
+     Output('xml-ld-output', 'children'),
      Output('btn-download', 'style')],
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows')],
@@ -244,18 +245,20 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         conditional_styles1 = style_data_conditional(df)
         conditional_styles2 = style_data_conditional(df2)
 
-        # Generate JSON-LD based on selected rows
+        # Generate xml-LD based on selected rows
         if selected_rows and table2_data and df_meta:
             vars = []
             for row_index in selected_rows:
                 selected_row_data = table2_data[row_index]
                 vars.append(selected_row_data["name"])
-            jsonld_data = generate_complete_jsonld2(df, df_meta, vars, filename)
+            xml_data = generate_complete_xml2(df, df_meta, vars, spssfile=filename)
+            xml_data = xml_data.decode('utf-8')  # Decode the bytes to a string
         else:
-            jsonld_data = generate_complete_jsonld(df, df_meta, filename)
+            xml_data = generate_complete_xml(df, df_meta, spssfile=filename)
+            xml_data = xml_data.decode('utf-8')  # Decode the bytes to a string
 
         return (df.to_dict('records'), columns1, conditional_styles1, df2.to_dict('records'),
-                columns2, conditional_styles2, jsonld_data, {'display': 'block'})
+                columns2, conditional_styles2, xml_data, {'display': 'block'})
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
@@ -284,17 +287,17 @@ def switch_table(n_clicks, style1, style2):
 
 
 @app.callback(
-    Output('download-jsonld', 'data'),
+    Output('download-xml', 'data'),
     [Input('btn-download', 'n_clicks')],
-    [State('json-ld-output', 'children'),
+    [State('xml-ld-output', 'children'),
      State('upload-data', 'filename')]
 )
-def download_jsonld(n_clicks, jsonld_data, filename):
-    if n_clicks is None or filename is None or jsonld_data is None:
+def download_xml(n_clicks, xml_data, filename):
+    if n_clicks is None or filename is None or xml_data is None:
         raise dash.exceptions.PreventUpdate
 
-    download_filename = os.path.splitext(filename)[0] + '.jsonld'
-    return dict(content=jsonld_data, filename=download_filename, type='text/json')
+    download_filename = os.path.splitext(filename)[0] + '.xml'
+    return dict(content=xml_data, filename=download_filename, type='text/xml')
 
 
 if __name__ == '__main__':
