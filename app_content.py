@@ -4,7 +4,7 @@ import datetime
 markdown_text = """
 ## DDI-CDI Subset
 
-This profile utilizes 25 classes from the DDI-CDI model (2023-11-23).                  |
+This profile utilizes 25 classes from the DDI-CDI model (2024-02-22).                  |
 |--------------------------------|
 | DataStore                      |
 | LogicalRecord                  |
@@ -19,10 +19,10 @@ This profile utilizes 25 classes from the DDI-CDI model (2023-11-23).           
 | SentinelValueDomain            |
 | ValueAndConceptDescription     |
 | Codelist                       |
-| Concept                        |
 | Code                           |
 | Category                       |
 | Notation                       |
+| PhysicalDataStructure          |
 | PhysicalDataset                |
 | PhysicalRecordSegment          |
 | PhysicalSegmentLayout          |

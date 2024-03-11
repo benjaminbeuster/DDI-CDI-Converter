@@ -145,6 +145,10 @@ def generate_InstanceVariable(df_meta):
             add_ddiref(RepresentedVariable_takesSentinelValuesFrom_SentinelValueDomain, f"#sentinelValueDomain-{variable}", agency, "SentinelValueDomain")
         RepresentedVariable_takesSubstantiveValuesFrom_SubstantiveValueDomain = add_cdi_element(element, 'RepresentedVariable_takesSubstantiveValuesFrom_SubstantiveValueDomain')
         add_ddiref(RepresentedVariable_takesSubstantiveValuesFrom_SubstantiveValueDomain, f"#substantiveValueDomain-{variable}", agency, 'SubstantiveValueDomain')
+        InstanceVariable_has_PhysicalSegmentLayout = add_cdi_element(element, 'InstanceVariable_has_PhysicalSegmentLayout')
+        add_ddiref(InstanceVariable_has_PhysicalSegmentLayout, f"#physicalSegmentLayout", agency, "PhysicalSegmentLayout")
+        InstanceVariable_has_ValueMapping = add_cdi_element(element, 'InstanceVariable_has_ValueMapping')
+        add_ddiref(InstanceVariable_has_ValueMapping, f"#valueMapping-{variable}", agency, "ValueMapping")
     return root
 
 
@@ -374,14 +378,24 @@ def generate_Category_Notation(df_meta):
 
 
 # In[ ]:
-
+# PhysicalDataSetStructure
+def generate_PhysicalDataSetStructure(df_meta):
+    element = add_cdi_element(root, 'PhysicalDataSetStructure')
+    add_identifier(element, f"#physicalDataSetStructure")
+    PhysicalDataSetStructure_correspondsTo_DataStructure = add_cdi_element(element, 'PhysicalDataSetStructure_correspondsTo_DataStructure')
+    add_ddiref(PhysicalDataSetStructure_correspondsTo_DataStructure, f"#wideDataStructure", agency, "WideDataStructure")
+    PhysicalDataSetStructure_structures_PhysicalDataSet = add_cdi_element(element, 'PhysicalDataSetStructure_structures_PhysicalDataSet')
+    add_ddiref(PhysicalDataSetStructure_structures_PhysicalDataSet, f"#physicalDataSet", agency, "PhysicalDataSet")
+    return root
 
 # PhysicalDataset
 def generate_PhysicalDataset(df_meta, spssfile):
     element = add_cdi_element(root, 'PhysicalDataSet')
     add_cdi_element(element, 'allowsDuplicates', "false")
     add_identifier(element, f"#physicalDataset")
-    add_cdi_element(element, 'physicalFileName', spssfile)    
+    add_cdi_element(element, 'physicalFileName', spssfile)
+    PhysicalDataSet_correspondsTo_DataSet = add_cdi_element(element, f"PhysicalDataSet_correspondsTo_DataSet")
+    add_ddiref(PhysicalDataSet_correspondsTo_DataSet, f"#wideDataset", agency, "WideDataSet")
     PhysicalDataSet_formats_DataStore = add_cdi_element(element, f"PhysicalDataSet_formats_DataStore")
     add_ddiref(PhysicalDataSet_formats_DataStore, f"#dataStore", agency, "DataStore")
     PhysicalDataSet_has_PhysicalRecordSegment = add_cdi_element(element, 'PhysicalDataSet_has_PhysicalRecordSegment')
@@ -546,7 +560,7 @@ def generate_complete_xml(df, df_meta, spssfile='name'):
     global root
     root = etree.Element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap)
     root.set('{http://www.w3.org/2001/XMLSchema-instance}schemaLocation',
-             'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ https://ddi-cdi-resources.bitbucket.io/2023-11-12/encoding/xml-schema/ddi-cdi.xsd')
+             'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ https://ddi-cdi-resources.bitbucket.io/2024-02-22/encoding/xml-schema/ddi-cdi.xsd')
     global agency
     agency='int.esseric'
 
@@ -566,6 +580,7 @@ def generate_complete_xml(df, df_meta, spssfile='name'):
     generate_SentinelCodelist(df_meta)
     generate_Code(df_meta)
     generate_Category_Notation(df_meta)
+    generate_PhysicalDataSetStructure(df_meta)
     generate_PhysicalDataset(df_meta, spssfile)
     generate_PhysicalRecordSegment(df, df_meta)
     generate_PhysicalSegmentLayout(df_meta)
@@ -717,7 +732,7 @@ def generate_complete_xml2(df, df_meta, vars=None, spssfile='name'):
     global root
     root = etree.Element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap)
     root.set('{http://www.w3.org/2001/XMLSchema-instance}schemaLocation',
-             'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ https://ddi-cdi-resources.bitbucket.io/2023-11-12/encoding/xml-schema/ddi-cdi.xsd')
+             'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ https://ddi-cdi-resources.bitbucket.io/2024-02-22/encoding/xml-schema/ddi-cdi.xsd')
     global agency
     agency='int.esseric'
 
@@ -737,6 +752,7 @@ def generate_complete_xml2(df, df_meta, vars=None, spssfile='name'):
     generate_SentinelCodelist(df_meta)
     generate_Code(df_meta)
     generate_Category_Notation(df_meta)
+    generate_PhysicalDataSetStructure(df_meta)
     generate_PhysicalDataset(df_meta, spssfile)
     generate_PhysicalRecordSegment(df, df_meta)
     generate_PhysicalSegmentLayout(df_meta)
