@@ -4,33 +4,23 @@ import datetime
 markdown_text = """
 ## DDI-CDI Subset
 
-This profile utilizes 25 classes from the DDI-CDI model (2024-03-12).                  |
-|--------------------------------|
-| PhysicalDataStructure          |
-| PhysicalDataset                |
-| PhysicalRecordSegment          |
-| PhysicalSegmentLayout          |
-| ValueMapping                   |
-| ValueMappingPosition           |
-| DataPoint                      |
-| DataPointPosition              |
-| InstanceValue                  |
-| DataStore                      |
-| LogicalRecord                  |
-| WideDataSet                    |
-| WideDataStructure              |
-| IdentifierComponent            |
-| MeasureComponent               |
-| PrimaryKey                     |
-| PrimaryKeyComponent            |
-| InstanceVariable               |
-| SubstantiveValueDomain         |
-| SentinelValueDomain            |
-| ValueAndConceptDescription     |
-| Codelist                       |
-| Code                           |
-| Category                       |
-| Notation                       |
+This profile utilizes 25 classes from the DDI-CDI model (2024-03-12).
+
+|         |         |
+|------------------|------------------|
+| PhysicalDataStructure | DataStore |
+| PhysicalDataset | LogicalRecord |
+| PhysicalRecordSegment | WideDataSet |
+| PhysicalSegmentLayout | WideDataStructure |
+| ValueMapping | IdentifierComponent |
+| ValueMappingPosition | MeasureComponent |
+| DataPoint | PrimaryKey |
+| DataPointPosition | PrimaryKeyComponent |
+| InstanceValue | InstanceVariable |
+| SubstantiveValueDomain | SentinelValueDomain |
+| ValueAndConceptDescription | Codelist |
+| Code | Category |
+| Notation |  |
 """
 
 from datetime import datetime
