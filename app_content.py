@@ -4,8 +4,17 @@ import datetime
 markdown_text = """
 ## DDI-CDI Subset
 
-This profile utilizes 25 classes from the DDI-CDI model (2024-02-22).                  |
+This profile utilizes 25 classes from the DDI-CDI model (2024-03-12).                  |
 |--------------------------------|
+| PhysicalDataStructure          |
+| PhysicalDataset                |
+| PhysicalRecordSegment          |
+| PhysicalSegmentLayout          |
+| ValueMapping                   |
+| ValueMappingPosition           |
+| DataPoint                      |
+| DataPointPosition              |
+| InstanceValue                  |
 | DataStore                      |
 | LogicalRecord                  |
 | WideDataSet                    |
@@ -22,15 +31,6 @@ This profile utilizes 25 classes from the DDI-CDI model (2024-02-22).           
 | Code                           |
 | Category                       |
 | Notation                       |
-| PhysicalDataStructure          |
-| PhysicalDataset                |
-| PhysicalRecordSegment          |
-| PhysicalSegmentLayout          |
-| ValueMapping                   |
-| ValueMappingPosition           |
-| DataPoint                      |
-| DataPointPosition              |
-| InstanceValue                  |
 """
 
 from datetime import datetime

@@ -437,6 +437,8 @@ def generate_PhysicalSegmentLayout(df_meta):
     add_identifier(element, f"#physicalSegmentLayout")
     add_cdi_element(element, 'isDelimited', "false")
     add_cdi_element(element, 'isFixedWidth', "false")
+    PhysicalSegmentLayout_formats_LogicalRecord = add_cdi_element(element, 'PhysicalSegmentLayout_formats_LogicalRecord')
+    add_ddiref(PhysicalSegmentLayout_formats_LogicalRecord, f"#logicalRecord", agency, "LogicalRecord")
 
     for x, variable in enumerate(df_meta.column_names):
         PhysicalSegmentLayout_has_ValueMapping = add_cdi_element(element, f"PhysicalSegmentLayout_has_ValueMapping")
@@ -560,10 +562,19 @@ def generate_complete_xml(df, df_meta, spssfile='name'):
     global root
     root = etree.Element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap)
     root.set('{http://www.w3.org/2001/XMLSchema-instance}schemaLocation',
-             'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ https://ddi-cdi-resources.bitbucket.io/2024-02-22/encoding/xml-schema/ddi-cdi.xsd')
+             'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ https://ddi-cdi-resources.bitbucket.io/2024-03-12/encoding/xml-schema/ddi-cdi.xsd')
     global agency
     agency='int.esseric'
 
+    generate_PhysicalDataSetStructure(df_meta)
+    generate_PhysicalDataset(df_meta, spssfile)
+    generate_PhysicalRecordSegment(df, df_meta)
+    generate_PhysicalSegmentLayout(df_meta)
+    generate_ValueMapping(df, df_meta)
+    generate_ValueMappingPosition(df_meta)
+    generate_DataPoint(df, df_meta)
+    generate_DataPointPosition(df, df_meta)
+    generate_InstanceValue(df, df_meta)
     generate_DataStore(df_meta)
     generate_LogicalRecord(df_meta)
     generate_WideDataSet(df_meta)
@@ -580,15 +591,7 @@ def generate_complete_xml(df, df_meta, spssfile='name'):
     generate_SentinelCodelist(df_meta)
     generate_Code(df_meta)
     generate_Category_Notation(df_meta)
-    generate_PhysicalDataSetStructure(df_meta)
-    generate_PhysicalDataset(df_meta, spssfile)
-    generate_PhysicalRecordSegment(df, df_meta)
-    generate_PhysicalSegmentLayout(df_meta)
-    generate_ValueMapping(df, df_meta)
-    generate_ValueMappingPosition(df_meta)
-    generate_DataPoint(df, df_meta)
-    generate_DataPointPosition(df, df_meta)
-    generate_InstanceValue(df, df_meta)
+
 
     # Add XML declaration and write XML file
     xml_string = etree.tostring(root, encoding='UTF-8', xml_declaration=True, pretty_print=True)
@@ -732,10 +735,19 @@ def generate_complete_xml2(df, df_meta, vars=None, spssfile='name'):
     global root
     root = etree.Element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap)
     root.set('{http://www.w3.org/2001/XMLSchema-instance}schemaLocation',
-             'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ https://ddi-cdi-resources.bitbucket.io/2024-02-22/encoding/xml-schema/ddi-cdi.xsd')
+             'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ https://ddi-cdi-resources.bitbucket.io/2024-03-12/encoding/xml-schema/ddi-cdi.xsd')
     global agency
     agency='int.esseric'
 
+    generate_PhysicalDataSetStructure(df_meta)
+    generate_PhysicalDataset(df_meta, spssfile)
+    generate_PhysicalRecordSegment(df, df_meta)
+    generate_PhysicalSegmentLayout(df_meta)
+    generate_ValueMapping(df, df_meta)
+    generate_ValueMappingPosition(df_meta)
+    generate_DataPoint(df, df_meta)
+    generate_DataPointPosition(df, df_meta)
+    generate_InstanceValue(df, df_meta)
     generate_DataStore(df_meta)
     generate_LogicalRecord(df_meta)
     generate_WideDataSet(df_meta)
@@ -752,15 +764,6 @@ def generate_complete_xml2(df, df_meta, vars=None, spssfile='name'):
     generate_SentinelCodelist(df_meta)
     generate_Code(df_meta)
     generate_Category_Notation(df_meta)
-    generate_PhysicalDataSetStructure(df_meta)
-    generate_PhysicalDataset(df_meta, spssfile)
-    generate_PhysicalRecordSegment(df, df_meta)
-    generate_PhysicalSegmentLayout(df_meta)
-    generate_ValueMapping(df, df_meta)
-    generate_ValueMappingPosition(df_meta)
-    generate_DataPoint(df, df_meta)
-    generate_DataPointPosition(df, df_meta)
-    generate_InstanceValue(df, df_meta)
 
     # Add XML declaration and write XML file
     xml_string = etree.tostring(root, encoding='UTF-8', xml_declaration=True, pretty_print=True)
